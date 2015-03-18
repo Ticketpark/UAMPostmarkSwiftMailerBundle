@@ -156,14 +156,17 @@ class PostmarkTransport implements Swift_Transport {
             ->setSubject($headers->get('Subject')->getFieldBody());
 
         $headers->remove('Subject');
-
         $postmark
             ->setFrom($headers->get('From')->getFieldBody());
 
         $headers->remove('From');
 
+        $replyTo = $message->getReplyTo();
+        if ($replyTo) {
+            $postmark->setReplyTo(key($replyTo), array_pop($replyTo));
+        }
+
         $postmark
-            ->setReplyTo($message->getReplyTo())
             ->setTextMessage($message->getBody());
 
         if (!is_null($html_part = $this->getMIMEPart($message, 'text/html')))
