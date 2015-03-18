@@ -51,6 +51,8 @@ class PostmarkTransport implements Swift_Transport {
 
     protected $dispatcher;
 
+    protected $response;
+
     /**
      * @param string $postmark_api_token Postmark API key
      * @param string|array $from Postmark sender signature email
@@ -118,13 +120,13 @@ class PostmarkTransport implements Swift_Transport {
 
         $send_count = 0;
 
-        $response = json_decode($postmark->send(), true);
+        $this->response = json_decode($postmark->send(), true);
 
 //        var_dump($response);
 //        die();
 
-        if ($response['ErrorCode'] == 0) {
-            $send_count = count(explode("," ,$response['To']));
+        if ($this->response['ErrorCode'] == 0) {
+            $send_count = count(explode("," ,$this->response['To']));
         }
 
         if ($event) {
@@ -140,6 +142,11 @@ class PostmarkTransport implements Swift_Transport {
         }
 
         return $send_count;
+    }
+
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     public function registerPlugin(Swift_Events_EventListener $plugin) {
